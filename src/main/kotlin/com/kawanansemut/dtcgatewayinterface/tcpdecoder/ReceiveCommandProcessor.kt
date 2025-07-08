@@ -1,5 +1,9 @@
 package com.kawanansemut.dtcgatewayinterface.tcpdecoder
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.LinkedBlockingQueue
@@ -16,15 +20,18 @@ class ReceiveCommandProcessor(val onReceiveMessage: (command:String) -> Boolean)
             while (true) {
                 val command = commandBlockedQueue.take()
                 try {
-                    Thread {
-                        val com = command.split(spr)[1].replace(ent, System.lineSeparator())
-                        log.info("process -> $com")
-                        if (onReceiveMessage(com)) {
-                            unprocessedCommand.remove(command)
-                            GwUtility.writeUnprocessedCommand(unprocessedCommand.joinToString("\n"))
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val com = command.split(spr)[1].replace(ent, System.lineSeparator())
+                            log.info("received command : $com")
+                            if (onReceiveMessage(com)) {
+                                unprocessedCommand.remove(command)
+                                GwUtility.writeUnprocessedCommand(unprocessedCommand.joinToString("\n"))
+                            }
+                        }catch (e:Exception){
+                            log.error("receive-command-worker error", e)
                         }
-                        log.info("process end -> $com")
-                    }.start()
+                    }
                 } catch (e: Exception) {
                     log.error("receive-command-worker error", e)
                 }

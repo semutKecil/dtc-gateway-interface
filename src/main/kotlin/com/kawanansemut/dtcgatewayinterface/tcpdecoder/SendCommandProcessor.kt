@@ -21,6 +21,7 @@ class SendCommandProcessor(private val boundaries: Boundaries) {
                     session?.write(boundaries.STX + c + boundaries.ETX)
                     // wait ack or nak before proceed
                     GwUtility.isAckOk?.get(20, TimeUnit.SECONDS)
+                    log.info("Send command: $c")
                 } catch (e: Exception) {
                     log.error("send-command-worker error", e)
                 }

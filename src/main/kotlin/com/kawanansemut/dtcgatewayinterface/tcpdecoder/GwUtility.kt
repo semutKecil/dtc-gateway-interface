@@ -45,8 +45,9 @@ object GwUtility {
         return readFuture.get(3000, TimeUnit.MILLISECONDS)
     }
 
-    fun writeUnprocessedCommand(str: String) {
+    fun writeUnprocessedCommand(listStr: List<String>) {
         // Do whatever
+        val str = listStr.takeLast(1000).joinToString("\n")
         val writeFuture: CompletableFuture<Boolean> = CompletableFuture()
         unprocessedQueue.put(Runnable {
             if (!File("data").exists()) {

@@ -2,7 +2,6 @@ package com.kawanansemut.dtcgatewayinterface.tcpdecoder
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -26,7 +25,7 @@ class ReceiveCommandProcessor(val onReceiveMessage: (command:String) -> Boolean)
                             log.info("received command : $com")
                             if (onReceiveMessage(com)) {
                                 unprocessedCommand.remove(command)
-                                GwUtility.writeUnprocessedCommand(unprocessedCommand.joinToString("\n"))
+                                GwUtility.writeUnprocessedCommand(unprocessedCommand)
                             }
                         }catch (e:Exception){
                             log.error("receive-command-worker error", e)
@@ -54,7 +53,7 @@ class ReceiveCommandProcessor(val onReceiveMessage: (command:String) -> Boolean)
             val cmd =
                 UUID.randomUUID().toString() + spr + cmdList.joinToString("|").replace("\r\n", ent).replace("\n", ent)
             unprocessedCommand.add(cmd)
-            GwUtility.writeUnprocessedCommand(unprocessedCommand.joinToString("\n"))
+            GwUtility.writeUnprocessedCommand(unprocessedCommand)
             commandBlockedQueue.put(cmd)
         }
 //        processQue()
